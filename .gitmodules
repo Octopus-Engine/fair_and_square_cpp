@@ -1,0 +1,3 @@
+[submodule "octopus_engine_cpp"]
+	path = octopus_engine_cpp
+	url = git@github.com:Octopus-Engine/octopus_engine_cpp.git

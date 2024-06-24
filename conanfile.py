@@ -26,15 +26,11 @@ class cfllpspConan(ConanFile):
     tool_requires = "cmake/3.27.9"
     options = {
         "shared": [True, False],
-        "fPIC": [True, False],
-        "with_graphic": [True, False],
-        "with_godot": [True, False]
+        "fPIC": [True, False]
         }
     default_options = {
         "shared": False,
-        "fPIC": True,
-        "with_graphic": False,
-        "with_godot": False
+        "fPIC": True
         }
     generators = "cmake"
     #build_policy = # can be never, missing, always
@@ -62,11 +58,7 @@ class cfllpspConan(ConanFile):
     # manages requirements
     # allows for defining optional requirements
     def requirements(self):
-        if self.options.with_graphic:
-            self.requires("sdl/2.26.1")
-            self.requires("sdl_image/2.0.5")
-            self.requires("sdl_ttf/2.0.18")
-            self.requires("libpng/1.6.39")
+        pass
 
     # copy required files from local store to project
     # handy for copying required shared libraries when testing
@@ -83,8 +75,6 @@ class cfllpspConan(ConanFile):
     # CMake configuration wrapper
     def configure_cmake(self):
         cmake = CMake(self)
-        cmake.definitions["GRAPHICS"] = "ON" if self.options.with_graphic else "OFF"
-        cmake.definitions["GODOT"] = "ON" if self.options.with_godot else "OFF"
         cmake.configure()
         return cmake
 

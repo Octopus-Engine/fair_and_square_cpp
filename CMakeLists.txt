@@ -47,7 +47,10 @@ add_definitions(-DBOOST_ALLOW_DEPRECATED_HEADERS)
 # Game Engine configuration
 # ============================================================================
 
-add_subdirectory(src/octopus)
+# importing octopus game engine
+add_subdirectory(octopus_engine_cpp)
+
+# fas implementation
 add_subdirectory(src/levels)
 add_subdirectory(src/game)
 add_subdirectory(src/fair_and_square)
