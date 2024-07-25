@@ -20,6 +20,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
     - run: apt-get update && apt install -y --no-install-recommends python3-pip virtualenv cmake make g++ git
     - run: virtualenv --python=python3 .venv
     - run: |
