@@ -1,0 +1,37 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    container: ubuntu:18.04
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: apt-get update && apt install -y --no-install-recommends python3-pip virtualenv cmake make g++ git
+    - run: virtualenv --python=python3 .venv
+    - run: |
+          source .venv/bin/activate
+          echo "PATH=$PATH" >> "$GITHUB_ENV"
+    - run: pip3 install conan==1.60 --upgrade
+    - run: conan profile new default --detect
+    - run: conan profile update settings.compiler.libcxx=libstdc++11 default
+    - run: conan install . -if builds/Release -s build_type=Release --build=missing -o with_godot=True
+    - run: conan package . -if builds/Release -bf builds/Release || conan package . -if builds/Release -bf builds/Release
+    - uses: actions/upload-artifact@v3
+      with:
+        name: libgodoctopus.so
+        path: builds/Release/lib/libgodoctopus.so
+    - uses: actions/upload-artifact@v3
+      with:
+        name: unit_tests
+        path: builds/Release/bin/unit_tests
