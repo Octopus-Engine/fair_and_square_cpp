@@ -16,7 +16,7 @@ jobs:
         shell: bash
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: apt-get update && apt install -y --no-install-recommends python3-pip virtualenv cmake make g++ git
     - run: virtualenv --python=python3 .venv
     - run: |
@@ -27,11 +27,11 @@ jobs:
     - run: conan profile update settings.compiler.libcxx=libstdc++11 default
     - run: conan install . -if builds/Release -s build_type=Release --build=missing -o with_godot=True
     - run: conan package . -if builds/Release -bf builds/Release || conan package . -if builds/Release -bf builds/Release
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: libgodoctopus.so
         path: builds/Release/lib/libgodoctopus.so
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: unit_tests
         path: builds/Release/bin/unit_tests
