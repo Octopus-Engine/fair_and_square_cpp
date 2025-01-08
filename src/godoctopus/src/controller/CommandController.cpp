@@ -161,14 +161,14 @@ void add_unit_build_command(std::list<octopus::Command*> &list_r, octopus::State
     if(lib_p.hasUnitModel(modelId_l))
     {
         octopus::UnitModel const &unit_l = lib_p.getUnitModel(modelId_l);
-		auto cmd_l = new octopus::BuildingGroupProductionCommand<octopus::BuildingUnitProductionCommand, octopus::UnitModel>(handles_l, unit_l);
+		auto cmd_l = new octopus::BuildingGroupProductionCommand<octopus::BuildingUnitProductionCommand, octopus::UnitModel>(handles_l, &unit_l);
 		cmd_l->setQueued(true);
 		list_r.push_back(cmd_l);
     }
     else if(lib_p.hasUpgrade(modelId_l))
     {
         octopus::Upgrade const &upgrade_l = lib_p.getUpgrade(modelId_l);
-		auto cmd_l = new octopus::BuildingGroupProductionCommand<octopus::BuildingUpgradeProductionCommand, octopus::Upgrade>(handles_l, upgrade_l);
+		auto cmd_l = new octopus::BuildingGroupProductionCommand<octopus::BuildingUpgradeProductionCommand, octopus::Upgrade>(handles_l, &upgrade_l);
 		cmd_l->setQueued(true);
 		list_r.push_back(cmd_l);
     }
