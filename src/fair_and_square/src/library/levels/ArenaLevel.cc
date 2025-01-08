@@ -154,6 +154,7 @@ std::list<octopus::Steppable *> ArenaKamikazeSteps(octopus::Library &lib_p, uint
     unitModel_l._lineOfSight = 10;
     unitModel_l._fullReload = 30.;
     unitModel_l._windup = 20;
+	unitModel_l._aggroDistance = 20;
 
     lib_p.registerUnitModel("square", unitModel_l);
 }
@@ -181,7 +182,6 @@ std::list<octopus::Steppable *> ArenaKamikazeSteps(octopus::Library &lib_p, uint
 	mod_l._modifiers.emplace_back(AoEModifier(1., 2.2));
 	mod_l._modifiers.emplace_back(SelfDamageModifier(100,0.,0.,true));
     square_l._attackMod = mod_l;
-	square_l._aggroDistance = 20;
 
 	unsigned long id_l = 0;
 	for(uint32_t i = 0; i < numberYou_p ; ++ i)
