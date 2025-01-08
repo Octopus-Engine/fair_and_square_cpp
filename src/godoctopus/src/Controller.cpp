@@ -130,7 +130,16 @@ void Controller::_process(double delta)
 
 		if(_state && _state->getStepApplied() % 128 == 0)
 		{
-			emit_signal("state_dump", (int64_t)_state->getStepApplied(), hashState(*_state));
+			std::stringstream ss_l;
+			streamStateAsSimpleText(ss_l, *_state);
+			auto trim = [](std::string& str, char from = '\n', char to = ';') {
+				if (str.empty()) return;
+				std::replace(str.begin(), --str.end(), from, to);
+			};
+			auto state_str = ss_l.str();
+			trim(state_str);
+			octopus::Logger::getNormal() << "Controller:: State dump on step " << _state->getStepApplied()<< ", state = "<<state_str<<std::endl;
+			emit_signal("state_dump", (int64_t)_state->getStepApplied(), ss_l.str().c_str());
 		}
 	}
 }
@@ -768,6 +777,8 @@ void Controller::init(std::list<octopus::Command *> const &commands_p, std::list
 	_lastIt = stateAndSteps_l._steps.begin();
 
 	applyControllerStepVisitor(*this, *_state, stateAndSteps_l._initialStep);
+
+	octopus::Logger::enable_debug();
 
 	UtilityFunctions::print("done");
 	_initDone = true;
@@ -1674,10 +1685,21 @@ void Controller::add_debug_command(int peer_p, int param_p)
 	_queuedCommandsPerPeer.at(peer_p).back().push_back(new octopus::DebugCommand(_lib));
 }
 
+template<typename T>
+size_t get_peer_queue_size(int peer_p, T map)
+{
+	if(map.find(peer_p) != map.end())
+	{
+		return map.at(peer_p).size();
+	}
+	return 0;
+}
+
 void Controller::add_move_commands(int peer_p, PackedInt32Array const &handles_p, Vector2 const &target_p, int player_p, bool queued_p)
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_move_commands for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_move_commands(_queuedCommandsPerPeer.at(peer_p).back(), *_state, handles_p, target_p, player_p, queued_p);
 	}
 }
@@ -1686,6 +1708,7 @@ void Controller::add_move_target_commands(int peer_p, PackedInt32Array const &ha
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_move_target_commands for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_move_target_commands(_queuedCommandsPerPeer.at(peer_p).back(), *_state, handles_p, target_p, handleTarget_p, player_p, queued_p);
 	}
 }
@@ -1694,6 +1717,7 @@ void Controller::add_attack_move_commands(int peer_p, PackedInt32Array const &ha
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_attack_move_commands for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_attack_move_commands(_queuedCommandsPerPeer.at(peer_p).back(), *_state, handles_p, target_p, player_p, queued_p);
 	}
 }
@@ -1702,6 +1726,7 @@ void Controller::add_stop_commands(int peer_p, PackedInt32Array const &handles_p
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_stop_commands for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_stop_commands(_queuedCommandsPerPeer.at(peer_p).back(), *_state, handles_p, player_p, queued_p);
 	}
 }
@@ -1710,6 +1735,7 @@ void Controller::add_unit_auto_build_command(int peer_p, PackedInt32Array const 
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_unit_auto_build_command for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_unit_auto_build_command(_queuedCommandsPerPeer.at(peer_p).back(), *_state, _lib, handles_p, model_p, player_p);
 	}
 }
@@ -1718,6 +1744,7 @@ void Controller::add_unit_build_command(int peer_p, PackedInt32Array const &hand
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_unit_build_command for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_unit_build_command(_queuedCommandsPerPeer.at(peer_p).back(), *_state, _lib, handles_p, model_p, player_p);
 	}
 }
@@ -1726,6 +1753,7 @@ void Controller::add_unit_build_cancel_command(int peer_p, PackedInt32Array cons
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_unit_build_cancel_command for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_unit_build_cancel_command(_queuedCommandsPerPeer.at(peer_p).back(), *_state, handle_p, index_p, player_p);
 	}
 }
@@ -1734,6 +1762,7 @@ void Controller::add_blueprint_command(int peer_p, Vector2 const &target_p, Stri
 {
 	if(!_paused)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_blueprint_command for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		godot::add_blueprint_command(_queuedCommandsPerPeer.at(peer_p).back(), *_state, _lib, target_p, model_p, player_p, builders_p, queued_p);
 	}
 }
@@ -1743,6 +1772,7 @@ void Controller::add_building_cancel_command(int peer_p, PackedInt32Array const 
 	octopus::Handle entHandle_l = castHandle(handle_p[0], handle_p[1]);
 	if(!_paused && _state->getEntity(entHandle_l)->_model._isBuilding)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_building_cancel_command for peer "<<peer_p<<" on list of size "<<get_peer_queue_size(peer_p, _queuedCommandsPerPeer)<<" with step done = "<<_stepDone<<std::endl;
 		_queuedCommandsPerPeer.at(peer_p).back().push_back(new octopus::BuildingCancelCommand(entHandle_l));
 	}
 }
@@ -1774,12 +1804,15 @@ void Controller::set_step_control(int prequeued_p)
 
 void Controller::next_step()
 {
+	octopus::Logger::getNormal()<<"Controller :: next_step"<<std::endl;
 	for(auto &&pair_l : _queuedCommandsPerPeer)
 	{
 		int peer_l = pair_l.first;
+		octopus::Logger::getNormal()<<"Controller :: peer "<<pair_l.first<<" size = "<<pair_l.second.size()<<std::endl;
 		std::list<octopus::Command*> const &cmds_l = pair_l.second.front();
 		for(octopus::Command * cmd_l : cmds_l)
 		{
+			octopus::Logger::getNormal()<<"Controller :: unqueue command "<<typeid(*cmd_l).name()<<std::endl;
 			/// @todo refactor to allow control over multiple player ?
 			_controller->queueCommandAsPlayer(cmd_l, _playerPerPeer.at(peer_l));
 			//_controller->queueCommand(cmd_l);
@@ -1804,6 +1837,7 @@ void Controller::add_peer_info(int peer_p, int player_p)
 {
 	if(player_p>=0)
 	{
+		octopus::Logger::getNormal()<<"Controller :: add_peer_info peer = "<<peer_p<<" player = "<<player_p<<std::endl;
 		_playerPerPeer[peer_p] = player_p;
 		// also set up command per peer with one list
 		_queuedCommandsPerPeer[peer_p].push_back({});
@@ -1813,6 +1847,7 @@ void Controller::add_peer_info(int peer_p, int player_p)
 void Controller::step_done_for_peer(int peer_p)
 {
 	_queuedCommandsPerPeer[peer_p].push_back({});
+	octopus::Logger::getNormal()<<"Controller :: step_done_for_peer peer = "<<peer_p<<" size = "<<_queuedCommandsPerPeer[peer_p].size()<<std::endl;
 }
 
 void Controller::_bind_methods()
@@ -2002,7 +2037,7 @@ void Controller::_bind_methods()
 	ADD_SIGNAL(MethodInfo("loading_state", PropertyInfo(Variant::FLOAT, "loading")));
 	ADD_SIGNAL(MethodInfo("loading_done"));
 
-	ADD_SIGNAL(MethodInfo("state_dump", PropertyInfo(Variant::INT, "step"), PropertyInfo(Variant::INT, "step")));
+	ADD_SIGNAL(MethodInfo("state_dump", PropertyInfo(Variant::INT, "step"), PropertyInfo(Variant::STRING, "state")));
 	ADD_SIGNAL(MethodInfo("ready_to_loop"));
 }
 
